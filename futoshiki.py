@@ -341,22 +341,21 @@ class Puzzle:
         return None
 
 
-if __name__ == "__main__":
-    input_file = None
-    output_file = None
-    auto_solve = False
-    for index, argument in enumerate(sys.argv):
-        if argument == "-i":
-            input_file = sys.argv[index + 1]
-        elif argument == "-o":
-            output_file = sys.argv[index + 1]
-        elif argument == '-s':
-            auto_solve = True
-        if input_file is None:
-            print("Usage: python3 futoshiki.py -i <input_file> [-o <output_file>] [-s]")
-            exit(1)
-        p = Puzzle(input_file, output_file)
-        if auto_solve:
-            p.solve()
-        else:
-            p.play()
+input_file = None
+output_file = None
+auto_solve = False
+for index, argument in enumerate(sys.argv):
+    if argument == "-i":
+        input_file = sys.argv[index + 1]
+    elif argument == "-o":
+        output_file = sys.argv[index + 1]
+    elif argument == '-s':
+        auto_solve = True
+    if input_file is None:
+        print("Usage: python3 futoshiki.py -i <input_file> [-o <output_file>] [-s]")
+        exit(1)
+    p = Puzzle(input_file, output_file)
+    if auto_solve:
+        p.solve()
+    else:
+        p.play()
