@@ -65,8 +65,14 @@ class Puzzle:
 
         self.state = State(board, constraints, row_constraints, col_constraints)
         print(self)
-        for key in self.state.constraints:
-            print(key, '-', self.state.constraints[key])
+#       for k in constraints:
+#           print(k, constraints[k])
+#       print()
+        finished = self.solve()
+        if finished:
+            self.state = finished
+            print(self)
+            print('Solved!')
 
 
     def __str__(self):
@@ -96,9 +102,13 @@ class Puzzle:
             string.append('\n')
         return ''.join(string)
 
-    def play():
+    def play(self):
         pass
-    def solve():
+
+    def solve(self, state = None):
+
+        if state is None:
+            state = self.state
         #So for this, we do backtracking search
         #The current state of the board is stored in a 2D array, and the individual constraints will not change. 
         #So we do best first where the heuristic is number of constraints, and degree is the tie breaker
@@ -106,33 +116,36 @@ class Puzzle:
         #We then assign it a legal value, and continue with this new state
         #If we reach a dead end, we backtrack until there are other legal moves that we didn't try, then we try those.
 
-        #So the datastructures:
-        #The board is a 2D array of ints
-
         #We need a few helper functions:
         # select_next_assignment() - returns the next assignment to try
             #I think this should keep track of the number of constraints for each tile, and the degree of each tile. Maybe some way to initialize it? Make it a generator?
             #We should also consider that the number of constraints will change as the tiles around the number get filled. So we should update the number of constraints for each tile as we go
             #This should return the next tile to try.
-            #This is the most important function because it determines the order in which we try the assignments;
-            #the rest is just checking and backtracking if we reach a dead end
         # get_legal_moves(row, col) - returns a list of legal moves for the given tile
             #This needs to be in the order that we want to try the moves. So we should try the moves in order of the number of constraints they will create
         # update_constraints(row, col) - updates the number of constraints for each tile
 
         def get_legal_moves(state, row, col):
-            legal_moves = {1, 2, 3, 4, 5}
-            for move in legal_moves:
+            all_moves = {1, 2, 3, 4, 5}
+            moves = set()
+            for move in all_moves:
                 if move in state.row_constraints[row] or move in state.col_constraints[col]:
-                    legal_moves.remove(move)
+                    continue
+                is_valid = True
                 for constraint in state.constraints[(row, col)]:
+                    if state.board[constraint[0]][constraint[1]] == 0:
+                        continue
                     if state.constraints[(row, col)][constraint] == '>':
-                        if move <= board[constraint[0]][constraint[1]]:
-                            legal_moves.remove(move)
+                        if move <= state.board[constraint[0]][constraint[1]]:
+                            is_valid = False
+                            break
                     else:
-                        if move >= board[constraint[0]][constraint[1]]:
-                            legal_moves.remove(move)
-            return legal_moves
+                        if move >= state.board[constraint[0]][constraint[1]]:
+                            is_valid = False
+                            break
+                if is_valid:
+                    moves.add(move)
+            return moves
 
         def select_next_assignment(state):
             max_constraints = 0
@@ -143,7 +156,7 @@ class Puzzle:
                     if state.board[row][col] != 0:
                         continue
 
-                    num_constraints = 5 - get_legal_moves(state, row, col)
+                    num_constraints = 5 - len(get_legal_moves(state, row, col))
 
                     if num_constraints > max_constraints:
                         max_constraints = num_constraints
@@ -157,11 +170,44 @@ class Puzzle:
 
             #Find tile with highest degree
             #define degree as highest number of constraints on other tiles
-            pass
+
+            #Once we've finished, return any tile that works.
+            return max_constraints_tiles.pop()
     
         def generate_new_state(state, row, col, move):
             #return a new state with the next assignment, and with update row and column constraints
+            new_board = copy.deepcopy(state.board)
+            new_board[row][col] = move
+            new_row_constraints = copy.deepcopy(state.row_constraints)
+            new_col_constraints = copy.deepcopy(state.col_constraints)
+            new_row_constraints[row].add(move)
+            new_col_constraints[col].add(move)
+            new_state = State(new_board, state.constraints, new_row_constraints, new_col_constraints)
+            return new_state
             pass
-        pass
+        
+        def is_finished(state):
+            for row in range(board_size):
+                for col in range(board_size):
+                    if state.board[row][col] == 0:
+                        return False
+            return True
+            #return true if the board is filled in and legal
+            pass
+
+
+        if is_finished(state):
+            return state
+        next_assignment = select_next_assignment(state)
+        for move in get_legal_moves(state, next_assignment[0], next_assignment[1]):
+            new_state = generate_new_state(state, next_assignment[0], next_assignment[1], move)
+            result = self.solve(new_state)
+            if result is not None:
+                return result
+        return None
+
 
 p = Puzzle("SampleInput.txt", "SampleOutput.txt")
+p = Puzzle("Input1.txt", "Output1.txt")
+p = Puzzle("Input2.txt", "Output2.txt")
+p = Puzzle("Input3.txt", "Output3.txt")
