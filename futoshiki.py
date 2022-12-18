@@ -8,6 +8,12 @@ from rich.console import Console
 
 board_size = 5
 State = namedtuple('State', 'board constraints row_constraints col_constraints')
+console = Console()
+
+#Non blocking keyboard input gets stored in a queue
+keypresses = deque()
+listener = keyboard.Listener(on_press=keypresses.append)
+listener.start()
 
 class Puzzle:
     def __init__(self, input_file, output_file):
@@ -64,15 +70,10 @@ class Puzzle:
                     constraints[right][left] = inv_constraint
 
         self.state = State(board, constraints, row_constraints, col_constraints)
-        print(self)
 #       for k in constraints:
 #           print(k, constraints[k])
 #       print()
-        finished = self.solve()
-        if finished:
-            self.state = finished
-            print(self)
-            print('Solved!')
+
 
 
     def __str__(self):
@@ -102,7 +103,122 @@ class Puzzle:
             string.append('\n')
         return ''.join(string)
 
+    def print(self, selected = None, err = False):
+        #Clear screen if windows:
+        if sys.platform == 'win32':
+            print('\033c', end = '')
+        elif sys.platform == 'linux':
+            print('\033[2J', end = '')
+        if selected == None:
+            console.print(self)
+        else:
+            repr_string = str(self)
+            #calculate offset of selected tile in string
+            #X coordinate: 
+            x_offset = 4 * selected[1]
+            #Y coordinate:
+            y_offset = 42 * selected[0]
+            red_print = f'[bold red]{repr_string[x_offset + y_offset]}[/bold red]' if not err else f'[bold red]X[/bold red]'
+            console.print(repr_string[:x_offset + y_offset] + red_print + repr_string[x_offset + y_offset + 1:])
+            
     def play(self):
+        initial_state = copy.deepcopy(self.state)
+        immovable = set()
+        for row in range(board_size):
+            for col in range(board_size):
+                if self.state.board[row][col] != 0:
+                    immovable.add((row, col))
+        selected = [0, 0]
+        while True:
+            self.print(selected = selected)
+            input_key = None
+            while input_key == None:
+
+                if len(keypresses) > 0:
+                    key = keypresses.popleft()
+                    if key == keyboard.Key.esc:
+                        sys.exit(0)
+                    elif key == keyboard.KeyCode.from_char('s'):
+                        solved_state = self.solve(initial_state)
+                        self.state = solved_state
+                        self.print()
+                        print('Solved!')
+                        exit(0)
+                    elif key == keyboard.Key.up:
+                        selected[0] = min(board_size - 1, selected[0] - 1)
+                    elif key == keyboard.Key.down:
+                        selected[0] = max(0, selected[0] + 1)
+                    elif key == keyboard.Key.left:
+                        selected[1] = max(0, selected[1] - 1)
+                    elif key == keyboard.Key.right:
+                        selected[1] = min(board_size - 1, selected[1] + 1)
+                    elif key == keyboard.KeyCode.from_char('1'):
+                        input_key = 1
+                        break
+                    elif key == keyboard.KeyCode.from_char('2'):
+                        input_key = 2
+                        break
+                    elif key == keyboard.KeyCode.from_char('3'):
+                        input_key = 3
+                        break
+                    elif key == keyboard.KeyCode.from_char('4'):
+                        input_key = 4
+                        break
+                    elif key == keyboard.KeyCode.from_char('5'):
+                        input_key = 5
+                        break
+                    self.print(selected = selected)
+
+            #Draw board
+            #Get player inputs
+            is_valid = True
+            is_overwrite = False
+            if input_key in self.state.row_constraints[selected[0]] or input_key in self.state.col_constraints[selected[1]]:
+                is_valid = False
+                self.print(selected = selected, err = True)
+                time.sleep(0.2)
+                continue
+            if  (selected[0], selected[1]) in immovable:
+                is_valid = False
+                self.print(selected = selected, err = True)
+                time.sleep(0.2)
+            elif self.state.board[selected[0]][selected[1]] != 0:
+                is_overwrite = True
+            if (selected[0], selected[1]) in self.state.constraints:
+                for other_tile in self.state.constraints[(selected[0], selected[1])]:
+                    if self.state.board[other_tile[0]][other_tile[1]] != 0:
+                        if self.state.constraints[(selected[0], selected[1])][other_tile] == '<':
+                            if self.state.board[other_tile[0]][other_tile[1]] < input_key:
+                                is_valid = False
+                                self.print(selected = selected, err = True)
+                                time.sleep(0.2)
+                                break
+                        else:
+                            if self.state.board[other_tile[0]][other_tile[1]] > input_key:
+                                is_valid = False
+                                self.print(selected = selected, err = True)
+                                time.sleep(0.2)
+                                break
+            if is_valid:
+                row = selected[0]
+                col = selected[1]
+                new_board = copy.deepcopy(self.state.board)
+                new_board[row][col] = input_key
+                new_row_constraints = copy.deepcopy(self.state.row_constraints)
+                new_col_constraints = copy.deepcopy(self.state.col_constraints)
+                if is_overwrite:
+                    new_row_constraints[row].remove(self.state.board[row][col])
+                    new_col_constraints[col].remove(self.state.board[row][col])
+                new_row_constraints[row].add(input_key)
+                new_col_constraints[col].add(input_key)
+                
+                new_state = State(new_board, self.state.constraints, new_row_constraints, new_col_constraints)
+                self.state = new_state
+                
+            #Check if move is valid
+            #If valid, update board
+            #Else, flash the X
+            #Check if board is solved
         pass
 
     def solve(self, state = None):
@@ -169,10 +285,22 @@ class Puzzle:
                 return max_constraints_tiles.pop()
 
             #Find tile with highest degree
-            #define degree as highest number of constraints on other tiles
+            #define degree as highest number of constraints on other tiless
+            max_degree = 0
+            max_degree_tiles = set()
+            for tile in max_constraints_tiles:
+                degree = 0
+                for constraint in state.constraints[tile]:
+                    if state.board[constraint[0]][constraint[1]] == 0:
+                        degree += 1
+                if degree > max_degree:
+                    max_degree = degree
+                    max_degree_tiles = {tile}
+                elif degree == max_degree:
+                    max_degree_tiles.add(tile)
 
             #Once we've finished, return any tile that works.
-            return max_constraints_tiles.pop()
+            return max_degree_tiles.pop()
     
         def generate_new_state(state, row, col, move):
             #return a new state with the next assignment, and with update row and column constraints
@@ -197,6 +325,11 @@ class Puzzle:
 
 
         if is_finished(state):
+            with open(self.output_file, 'w') as f:
+                for row in state.board:
+                    for col in row:
+                        f.write(str(col) + " ")
+                    f.write("\n")
             return state
         next_assignment = select_next_assignment(state)
         for move in get_legal_moves(state, next_assignment[0], next_assignment[1]):
@@ -208,6 +341,7 @@ class Puzzle:
 
 
 p = Puzzle("SampleInput.txt", "SampleOutput.txt")
+p.play()
 p = Puzzle("Input1.txt", "Output1.txt")
 p = Puzzle("Input2.txt", "Output2.txt")
 p = Puzzle("Input3.txt", "Output3.txt")
