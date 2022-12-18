@@ -325,11 +325,12 @@ class Puzzle:
 
 
         if is_finished(state):
-            with open(self.output_file, 'w') as f:
-                for row in state.board:
-                    for col in row:
-                        f.write(str(col) + " ")
-                    f.write("\n")
+            if self.output_file:
+                with open(self.output_file, 'w') as f:
+                    for row in state.board:
+                        for col in row:
+                            f.write(str(col) + " ")
+                        f.write("\n")
             return state
         next_assignment = select_next_assignment(state)
         for move in get_legal_moves(state, next_assignment[0], next_assignment[1]):
@@ -340,8 +341,22 @@ class Puzzle:
         return None
 
 
-p = Puzzle("SampleInput.txt", "SampleOutput.txt")
-p.play()
-p = Puzzle("Input1.txt", "Output1.txt")
-p = Puzzle("Input2.txt", "Output2.txt")
-p = Puzzle("Input3.txt", "Output3.txt")
+if __name__ == "__main__":
+    input_file = None
+    output_file = None
+    auto_solve = False
+    for index, argument in enumerate(sys.argv):
+        if argument == "-i":
+            input_file = sys.argv[index + 1]
+        elif argument == "-o":
+            output_file = sys.argv[index + 1]
+        elif argument == '-s':
+            auto_solve = True
+        if input_file is None:
+            print("Usage: python3 futoshiki.py -i <input_file> [-o <output_file>] [-s]")
+            exit(1)
+        p = Puzzle(input_file, output_file)
+        if auto_solve:
+            p.solve()
+        else:
+            p.play()
