@@ -1,6 +1,7 @@
 from pynput import keyboard
 from collections import deque, namedtuple
 from os import sys
+import os
 import heapq
 import copy
 import time
@@ -106,7 +107,8 @@ class Puzzle:
     def print(self, selected = None, err = False):
         #Clear screen if windows:
         if sys.platform == 'win32':
-            print('\033c', end = '')
+            os.system('cls')
+            #print('\033[2J', end = '')
         elif sys.platform == 'linux':
             print('\033[2J', end = '')
         if selected == None:
@@ -345,6 +347,7 @@ input_file = None
 output_file = None
 auto_solve = False
 for index, argument in enumerate(sys.argv):
+    print(argument)
     if argument == "-i":
         input_file = sys.argv[index + 1]
     elif argument == "-o":
@@ -353,7 +356,13 @@ for index, argument in enumerate(sys.argv):
         auto_solve = True
     if input_file is None:
         print("Usage: python3 futoshiki.py -i <input_file> [-o <output_file>] [-s]")
-        exit(1)
+        print("Note: The default python installation on Windows does not allow for command line arguments. You can enter them manually below.")
+        input_file = input("Enter input file: ")
+        output_file = input("Enter output file: ")
+        if output_file == "":
+            output_file = None
+        auto_solve = input("Auto solve? (y/n): ") == 'y'
+        keypresses.clear() #Clear this because if not it will read the keypresses from the input prompt
     p = Puzzle(input_file, output_file)
     if auto_solve:
         p.solve()
