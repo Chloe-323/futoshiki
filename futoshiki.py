@@ -77,8 +77,8 @@ class Puzzle:
         string = []
         for row in range(board_size):
             v_string = []
-            string.append('  ')
-            v_string.append('  ')
+            string.append('   ')
+            v_string.append('   ')
             for col in range(board_size):
                 nxt = (row, col + 1)
                 below = (row + 1, col)
@@ -116,9 +116,9 @@ class Puzzle:
             repr_string = str(self)[:-26]
             #calculate offset of selected tile in string
             #X coordinate: 
-            x_offset = 4 * selected[1] + 1
+            x_offset = 4 * selected[1] + 2
             #Y coordinate:
-            y_offset = 46 * selected[0] + 1
+            y_offset = 48 * selected[0] + 1
             red_print = f'[bold red]{repr_string[x_offset + y_offset]}[/bold red]' if not err else f'[bold red]X[/bold red]'
             console.print(Panel.fit(repr_string[:x_offset + y_offset] + red_print + repr_string[x_offset + y_offset + 1:], title = 'Futoshiki', border_style = 'red' if err else 'cyan', padding = 1, box=box.DOUBLE_EDGE))
             
