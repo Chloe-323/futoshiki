@@ -1,5 +1,5 @@
 # futoshiki
-Project 2 for CS-UY 4613 - Artificial Intelligence
+Project 2 for CS-UY 4613 - Artificial Intelligence - 
 https://github.com/Chloe-323/futoshiki
 
 # Overview
