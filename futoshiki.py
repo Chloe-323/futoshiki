@@ -70,11 +70,6 @@ class Puzzle:
                     constraints[right][left] = inv_constraint
 
         self.state = State(board, constraints, row_constraints, col_constraints)
-#       for k in constraints:
-#           print(k, constraints[k])
-#       print()
-
-
 
     def __str__(self):
         string = []
@@ -142,6 +137,9 @@ class Puzzle:
                         sys.exit(0)
                     elif key == keyboard.KeyCode.from_char('s'):
                         solved_state = self.solve(initial_state)
+                        if solved_state == None:
+                            print('No solution found')
+                            exit(1)
                         self.state = solved_state
                         self.print()
                         print('Solved!')
@@ -343,7 +341,6 @@ class Puzzle:
                 return result
         return None
 
-
 input_file = None
 output_file = None
 auto_solve = False
@@ -366,6 +363,12 @@ for index, argument in enumerate(sys.argv):
         keypresses.clear() #Clear this because if not it will read the keypresses from the input prompt
     p = Puzzle(input_file, output_file)
     if auto_solve:
-        p.solve()
+        s = p.solve()
+        if s is not None:
+            p.state = s
+            p.print()
+            print("Solved!")
+        else:
+            print("No solution found")
     else:
         p.play()
