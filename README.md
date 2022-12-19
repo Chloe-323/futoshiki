@@ -72,8 +72,9 @@ If an output file is specified, the program will write the solved board to the o
 
 # Code Overview
 The program defines a single class with five methods:
+
 ## `__init__(self, input_file, output_file, solve)`
-The __init__ method reads the input file and initializes the board, row_constraints, and col_constraints variables based on the contents of the file. It also initializes the constraints variable based on the horizontal and vertical inequality constraints in the input file.
+The `__init__` method reads the input file and initializes the board, row_constraints, and col_constraints variables based on the contents of the file. It also initializes the constraints variable based on the horizontal and vertical inequality constraints in the input file.
 
 It will initialize the following instance variables:
 
@@ -87,19 +88,19 @@ It will initialize the following instance variables:
 It then reads from the input file and initializes the state variable based on the contents of the file. The file format is defined above.
 
 ## `__str__(self)`
-The __str__ method returns a string representation of the current state of the board. It will print the board with the inequality constraints in between the cells.
+The `__str__` method returns a string representation of the current state of the board. It will print the board with the inequality constraints in between the cells.
 
 In order to display an aesthetically pleasing board, there is more space in between the tiles, such that all of the inequality constraints can fit betweem them without causing any offset or excessively warping the shape of the board.
 
 There are four characters between each horizontal tile and 42 characters between each vertical tile. That is, given an index in the string, adding 4 to that index will give the index of the next tile in the same row, and adding 42 will give the index of the next tile in the same column.
 
 ## `print(self, selected=None, err=False)`
-The print method prints the current state of the board to the console. It will print the board with the inequality constraints in between the cells. It will also highlight the selected cell in red, if it is given. If err is true, then the selected cell will have an X in it. This is used in the play method to show the user that they have made an invalid move.
+The `print` method prints the current state of the board to the console. It will print the board with the inequality constraints in between the cells. It will also highlight the selected cell in red, if it is given. If `err` is true, then the selected cell will have an X in it. This is used in the `play` method to show the user that they have made an invalid move.
 
 In order to print an aesthetically pleasing board, the [rich](https://pypi.org/project/rich/) library is used. This library allows for colors to be displayed in a cross-platform manner.
 
 ## `play(self)`
-The play method allows the user to play the game. It will print the board to the console and wait for the user to take an action. The user can take the following actions:
+The `play` method allows the user to play the game. It will print the board to the console and wait for the user to take an action. The user can take the following actions:
 - `↑` - Move the cursor up
 - `→` - Move the cursor right
 - `↓` - Move the cursor down
@@ -112,12 +113,13 @@ Once the user has selected an action, the program will update the board and prin
 This method defines an `immovable` set which will contain all the cells that cannot be changed. If a user puts a number down and then changes their mind, they can move the cursor to the cell and choose a different number to replace it. If they try to change a cell that was defined at the start of the puzzle, then they will receive an error. This is to prevent the user from changing the initial state of the puzzle.
 
 ## `solve(self, state=None)`
-The solve method solves the puzzle. It will return a state which represents the solved puzzle. If the puzzle is unsolvable, then it will return None.
+The `solve` method solves the puzzle. It will return a state which represents the solved puzzle. If the puzzle is unsolvable, then it will return `None`.
 If the state variable is not None, then the method will solve the puzzle starting from that state. Otherwise, it will solve the puzzle starting from the current state.
 
 The `solve` method uses a backtracking search algorithm to find a solution to the puzzle. The algorithm works by considering the unassigned tiles with the most constraints first, and trying the possible values for those tiles in the order of the number of constraints they will create. If a tile has no legal values, the algorithm backtracks to the previous tile and tries the next legal value for that tile. If there are no more legal values to try, the algorithm continues backtracking until it finds a tile with untried legal values. If the algorithm reaches a point where there are no more tiles to assign, it has found a solution to the puzzle.
 
 The solve method contains three nested functions: `get_legal_moves`, `select_next_assignment`, and `update_constraints`:
+
 - The `get_legal_moves` function takes a state and the indices row and col of a tile and returns a list of legal values for that tile. A value is legal if it has not already been used in the same row or column as the tile, and if it satisfies all the inequality constraints involving the tile.
 - The `select_next_assignment` function takes a state and returns the indices of the next tile to assign a value to. It first finds the tiles with the most constraints, and if there is more than one such tile, it picks the one with the highest degree (defined as the number of unassigned tiles with constraints involving the tile). If there is still a tie, then it will pick one arbitrarily, depending on the order that Python stores items in the set.
 - The `update_constraints` function takes a state, the indices row and col of a tile, and the value assigned to that tile. It updates the `row_constraints` and `col_constraints` variables to reflect the new value, and it also updates the number of constraints for each tile.
