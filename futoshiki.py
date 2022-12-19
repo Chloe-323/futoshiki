@@ -2,7 +2,6 @@ from pynput import keyboard
 from collections import deque, namedtuple
 from os import sys
 import os
-import heapq
 import copy
 import time
 from rich.console import Console
