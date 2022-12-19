@@ -1,6 +1,5 @@
 # futoshiki
-Project 2 for CS-UY 4613 - Artificial Intelligence - 
-https://github.com/Chloe-323/futoshiki
+Project 2 for CS-UY 4613 - Artificial Intelligence
 
 # Overview
 Futoshiki (Japanese for Inequality Puzzle) is a puzzle game similar to Sudoku. The game is played on a 5x5 grid, with some of the squares already filled in. The player must fill in the remaining squares with the numbers 1 through 5 such that no two numbers in the same row or column are the same, and no inequality constraint is violated. Inequalities are indicated by a greater-than or less-than symbol between two squares. For example, in the puzzle below, the numbers 5, 2, and 1 are already filled in. The inequality constraints are indicated by the greater-than and less-than symbols. The player must fill in the remaining squares with the numbers 1 through 5 such that no two numbers in the same row or column are the same, and no inequality constraint is violated. In this case, the only valid solution is the one shown below.
