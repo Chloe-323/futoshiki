@@ -110,6 +110,7 @@ class Puzzle:
             #print('\033[2J', end = '')
         elif sys.platform == 'linux':
             print('\033[2J', end = '')
+            pass
         if selected == None:
             console.print(self)
         else:
@@ -146,9 +147,9 @@ class Puzzle:
                         print('Solved!')
                         exit(0)
                     elif key == keyboard.Key.up:
-                        selected[0] = min(board_size - 1, selected[0] - 1)
+                        selected[0] = max(0, selected[0] - 1)
                     elif key == keyboard.Key.down:
-                        selected[0] = max(0, selected[0] + 1)
+                        selected[0] = min(board_size - 1, selected[0] + 1)
                     elif key == keyboard.Key.left:
                         selected[1] = max(0, selected[1] - 1)
                     elif key == keyboard.Key.right:
@@ -168,6 +169,7 @@ class Puzzle:
                     elif key == keyboard.KeyCode.from_char('5'):
                         input_key = 5
                         break
+                    print('p')
                     self.print(selected = selected)
 
             #Draw board
