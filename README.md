@@ -92,12 +92,12 @@ The `__str__` method returns a string representation of the current state of the
 
 In order to display an aesthetically pleasing board, there is more space in between the tiles, such that all of the inequality constraints can fit betweem them without causing any offset or excessively warping the shape of the board.
 
-There are four characters between each horizontal tile and 42 characters between each vertical tile. That is, given an index in the string, adding 4 to that index will give the index of the next tile in the same row, and adding 42 will give the index of the next tile in the same column.
+There are four characters between each horizontal tile and 46 characters between each vertical tile. That is, given an index in the string, adding 4 to that index will give the index of the next tile in the same row, and adding 42 will give the index of the next tile in the same column.
 
 ## `print(self, selected=None, err=False)`
 The `print` method prints the current state of the board to the console. It will print the board with the inequality constraints in between the cells. It will also highlight the selected cell in red, if it is given. If `err` is true, then the selected cell will have an X in it. This is used in the `play` method to show the user that they have made an invalid move.
 
-In order to print an aesthetically pleasing board, the [rich](https://pypi.org/project/rich/) library is used. This library allows for colors to be displayed in a cross-platform manner.
+In order to print an aesthetically pleasing board, the [rich](https://pypi.org/project/rich/) library is used.
 
 ## `play(self)`
 The `play` method allows the user to play the game. It will print the board to the console and wait for the user to take an action. The user can take the following actions:

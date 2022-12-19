@@ -5,6 +5,8 @@ import os
 import copy
 import time
 from rich.console import Console
+from rich.panel import Panel
+from rich import box
 
 board_size = 5
 State = namedtuple('State', 'board constraints row_constraints col_constraints')
@@ -75,6 +77,8 @@ class Puzzle:
         string = []
         for row in range(board_size):
             v_string = []
+            string.append('  ')
+            v_string.append('  ')
             for col in range(board_size):
                 nxt = (row, col + 1)
                 below = (row + 1, col)
@@ -107,16 +111,16 @@ class Puzzle:
             print('\033[2J', end = '')
             pass
         if selected == None:
-            console.print(self)
+            console.print(Panel.fit(str(self)[:-26], title='Futoshiki', border_style = 'cyan', padding = 1, box=box.DOUBLE_EDGE))
         else:
-            repr_string = str(self)
+            repr_string = str(self)[:-26]
             #calculate offset of selected tile in string
             #X coordinate: 
-            x_offset = 4 * selected[1]
+            x_offset = 4 * selected[1] + 1
             #Y coordinate:
-            y_offset = 42 * selected[0]
+            y_offset = 46 * selected[0] + 1
             red_print = f'[bold red]{repr_string[x_offset + y_offset]}[/bold red]' if not err else f'[bold red]X[/bold red]'
-            console.print(repr_string[:x_offset + y_offset] + red_print + repr_string[x_offset + y_offset + 1:])
+            console.print(Panel.fit(repr_string[:x_offset + y_offset] + red_print + repr_string[x_offset + y_offset + 1:], title = 'Futoshiki', border_style = 'red' if err else 'cyan', padding = 1, box=box.DOUBLE_EDGE))
             
     def play(self):
         initial_state = copy.deepcopy(self.state)
